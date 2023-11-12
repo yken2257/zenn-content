@@ -1,0 +1,17 @@
+{
+  "name": "Existing Dockerfile",
+  "build": {
+    "dockerfile": "../Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot"
+      ]
+    }
+  },
+	"features": {
+		"ghcr.io/devcontainers/features/github-cli:1": {},
+	}
+}
+
