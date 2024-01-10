@@ -525,7 +525,7 @@ https://www.m3aawg.org/blog/SendingBulkMailToGmail_Yahoo
 ### その他
 当事者以外の企業や個人の情報発信も多く、これらも参考になります（ただし最新の情報が反映されていない可能性があるので注意が必要です）。
 https://azumakuniyuki.hatenablog.com/entry/no-auth-no-entry-starting-from-feb-2024
-[24/01/10追記] List-Unsubscribeの実装の具体例が載っているが貴重で参考になりました。
+[24/01/10追記] List-Unsubscribeの実装の具体例が載っているのが貴重で参考になりました。
 https://happynap.net/2023-12-01-224252/
 [24/01/10追記] 全般的にとても詳しくて参考になります（玄人向け）。
 https://www.m3tech.blog/entry/2023/10/24/110000
