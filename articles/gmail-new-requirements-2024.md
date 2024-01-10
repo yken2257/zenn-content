@@ -6,7 +6,13 @@ topics: ["email", "Gmail", "DKIM", "SPF", "DMARC"]
 published: true
 ---
 
-2023年10月3日、Googleはスパム対策強化のため、Gmailへ送るメールが満たすべき条件を2024年2月から厳しくすると[発表](https://blog.google/products/gmail/gmail-security-authentication-spam-protection/)しました。また米国Yahoo!も、2024年第一四半期から同様の対策を行うと[発表](https://blog.postmaster.yahooinc.com/post/730172167494483968/more-secure-less-spam)しています。端的に言えば、この条件を満たさないと宛先にメールが届かなくなるという影響の大きな変更です。
+:::message
+[2024年1月10日追記] GmailとYahoo!側のアップデートに合わせていくつか細かい説明を追加しました（大筋は変わっていません）。変更点だけ知りたい方は「追記」でページ内検索してください。
+:::
+
+2023年10月3日、Googleはスパム対策強化のため、Gmailへ送るメールが満たすべき条件を2024年2月から厳しくすると[発表](https://blog.google/products/gmail/gmail-security-authentication-spam-protection/)しました。また米国Yahoo!も、2024年2月 ~~第一四半期~~[^100] から同様の対策を行うと[発表](https://blog.postmaster.yahooinc.com/post/730172167494483968/more-secure-less-spam)しています。端的に言えば、この条件を満たさないと宛先にメールが届かなくなるという影響の大きな変更です。
+
+[^100]: [24/01/10追記] 2023年12月下旬に公開された「[Sender Requirements & Recommendations](https://senders.yahooinc.com/best-practices/)」で開始時期が明らかになりました。
 
 この記事では、Gmailや米国Yahoo!の規制強化への対応方法を解説します。ただし米国Yahoo!にメールを送る人は多くないと思うので、フォーカスはGmail寄りです。また、メール配信サービス（海外だとSendGridやAmazon SES、国産だとblastengine等）の利用者寄りの視点になってます。
 
@@ -78,18 +84,23 @@ published: true
 また、「5,000通」の定義が気になると思うのでここで公開情報をまとめておきます。
 
 #### 通数の線引き
-Gmailの[FAQページ](https://support.google.com/a/answer/14229414?hl=en)には"close to 5,000 or more"と表記されているので、4,999通に抑えればOK、ということではないです。5,000という数字にこだわりすぎないほうがいいと思います。
-また、一回でも約5,000通/日を超えたらそれ以降は要件を満たしてね、とも取れる言い方をしています。
+Gmailの[FAQページ](https://support.google.com/a/answer/14229414?hl=en)には"close to 5,000 or more"と表記されているので、4,999通に抑えればOK、ということではないです。5,000という数字にこだわりすぎないほうがいいと思います。また、一回でも約5,000通/日を超えたらそれ以降は要件を満たしてね、とも取れる言い方をしています。
 > Senders who have sent close to 5000 messages in a 24-period 1 or more times are considered bulk senders.
+
+[24/01/10追記] [FAQの「Does bulk sender status expire? Can I change my sending practices to remove my bulk sender status?」](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cdoes-bulk-sender-status-expire-can-i-change-my-sending-practices-to-remove-my-bulk-sender-status:~:text=Does%20bulk%20sender%20status%20expire%3F%20Can%20I%20change%20my%20sending%20practices%20to%20remove%20my%20bulk%20sender%20status%3F)にも、一度「bulk sender」（5,000通以上の大量送信者）と認められたらずっとbulk senderとみなされる旨が明記されました。
 
 #### どの宛先に送るか
 `gmail.com`ドメイン宛に何通メール送信しているかがカウントされます。`gmail.com`ドメイン以外の宛先に送るメールはカウントされません。
 したがってtoC向けに送信している企業が主な対象者と思われます。
 :::message alert
-送信先の企業や団体がGoogle Workspaceを使っている場合は`gmail.com`ドメインではないので、カウントに含まれません。発表当初はGoogle Workspaceも含まれていたのですが、後に修正されたようです（2023/12/7現在英語版のガイドラインは更新されているが、日本語版はまだのよう）。
+送信先の企業や団体がGoogle Workspaceを使っている場合は`gmail.com`ドメインではないので、カウントに含まれません。発表当初はGoogle Workspaceも含まれていたのですが、後に修正されたようです。
 :::
 #### どこから送るか
 ヘッダFromドメイン（受信者が目にする送信元ドメイン）の単位でカウントされるとFAQページに[記載](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cwhat-is-a-bulk-sender:~:text=with%20the%20same%20domain%20in%20the%20From%3A%20header)されています。送信元IPアドレスを分けてもヘッダFromドメインが同じなら、同じ送信者から送信したことになりそうです。
+
+[24/01/10追記] ただし、サブドメインは合算されることに注意してください。Fromを`example.com`と`promotions.example.com`にしてそれぞれ2,500通送っている場合は合計で5,000通とみなされ、どちらのメールにもbulk sender（大量送信者）の要件が適用されます（[FAQの「What is a bulk sender?」](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cdo-the-sender-guidelines-apply-to-messages-sent-from-google-workspace-accounts%2Cwhat-is-a-bulk-sender:~:text=What%20is%20a%20bulk%20sender%3F)を参照）。
+
+あとこれは見落としがちかもしれませんが、自身のドメインを騙ったなりすましメールが送られている場合、それもカウントに含まれるはずです。なりすましメールをなくすには、DMARCを`p=quanrantine`か`p=reject`で設定する必要があるでしょう（DMARCについては後述）。
 
 ## 送信ドメイン認証技術のおさらい
 
@@ -236,6 +247,7 @@ DMARCのデフォルトではサブドメインの違いは許されます。な
 - SPFとDKIMは共にPASSしていたが、どちらのドメインも、ヘッダFromドメインと一致していなかった
 
 SendGridやAmazon SESなどのサービスを使っている場合、この要件はサービス側の設定でクリアできるはずなので、詳細な対応方法は割愛します。
+[24/01/10追記] 各種メールサービスの設定でSPFやDKIMのアライメントが満たせるかどうかは、[MailDataさんのページ](https://maildata.jp/service/supported_services.html)にまとめられているようです。
 
 なお、手元にあるメール一通がPASSしていても安心はできません。送信元Fromとして複数のサブドメインを使っていたり、メール送信にさまざまな外部ツール[^2]を使っていたりすると、全てのメールの状況をチェックするのは難しいです。DMARCレコードを設定して、SPF/DKIM認証の状況をruaレポートで確認するのが良いでしょう。
 
@@ -304,7 +316,7 @@ SendGridやAmazon SESを使って送信すると、最初から`sendgrid.net`や
 https://sendgrid.kke.co.jp/blog/?p=13266
 
 ### 送信時のTLS接続【★★】
-12月6日に新たに追加された要件で、12月7日現在、英語版にしか[記載](https://support.google.com/mail/answer/81126?hl=en#zippy=%2Crequirements-for-all-senders:~:text=Use%20a%20TLS%20connection%20for%20transmitting%20email.)がありません。
+12月6日に新たに追加された要件です。
 
 > Use a TLS connection for transmitting email. For steps to set up TLS in Google Workspace, visit Require a secure connection for email.
 
@@ -404,13 +416,18 @@ Gmailのガイドラインの[日本語訳](https://support.google.com/mail/answ
 ただしGmailにおいてはこの表示が出る条件は単純ではなさそうです。手元で試すと、メールヘッダや本文が同じような内容でも、送信元From（ヘッダFrom）が異なると出たり出なかったりしました。したがって、表示条件はヘッダがあるかどうかだけではなく、大量送信者かどうか等も見ている気がします（対応できてるか分かりづらいのでやめてほしい）。この辺りの最終的な判断基準はGoogleに聞いてみないとわからなそうです[^8]。
 :::
 
+:::message
+[24/01/10追記] Gmailの表示は見た目や挙動が変わったので、詳細は[こちらのスクラップ](https://zenn.dev/ken_yoshi/scraps/edafcb7ed1978d)を参照してください。
+:::
+
 [^8]: とはいえどうやって聞けば良いんだと思ってましたが、FAQに[問い合わせ先が記載](https://support.google.com/a/answer/14229414?hl=en#:~:text=Support%20%26%20escalation)されていました。
 
 #### 仕様の解説
-「one-click unsubscribe」は[RFC 8058](https://datatracker.ietf.org/doc/html/rfc8058)で定義されている用語で、HTTPのPOSTリクエストで配信停止を行うものです。なのでRFC 8058に準拠するのが理想だとは思いますが、Yahoo!の要件ではMAILTOによる配信停止（[RFC 2369](https://datatracker.ietf.org/doc/html/rfc2369)）でもOKだと言っています[^9]。実際Gmailのワンクリック配信停止リンクも、HTTPでなくても表示されるようです。
+「one-click unsubscribe」は[RFC 8058](https://datatracker.ietf.org/doc/html/rfc8058)で定義されている用語で、HTTPSのPOSTリクエストで配信停止を行うものです。なのでRFC 8058に準拠するのが理想だとは思いますが、Yahoo!の要件ではMAILTOによる配信停止（[RFC 2369](https://datatracker.ietf.org/doc/html/rfc2369)）でもOKだと言っています[^9]。実際Gmailのワンクリック配信停止リンクも、HTTPSでなくても表示されるようです[^12]。
 それぞれ説明します。
 
 [^9]: 要件を記した[このページ](https://senders.yahooinc.com/subhub)に「Of course we support “mailto:” unsubscribe headers as well.」と書いてある。
+[^12]: [24/01/10追記]ただし、GmailのアナウンスではMAILTOによる配信停止で良いとは明記されておらず、RFC 8058に従えとしか書いていないです。
 
 ##### `HTTP`による方法（RFC 8058）
 これはGmailのガイドラインに[記載](https://support.google.com/mail/answer/81126?hl=en#subscriptions)されている通りですが、以下の2つのヘッダをメールに追加する必要があります。
@@ -444,7 +461,7 @@ https://help.salesforce.com/s/articleView?id=000386352&type=1
 顧客管理はCRMやMAでやっているがメール送信自体はSendGridのアカウントを作ってAPIキーを連携しているみたいなパターンは、配信停止の仕組み自体はCRM/MA側が持っていると思います。状況はCRM/MA側に問い合わせてみるのが良いと思います。
 
 ##### 自社で配信停止を管理している場合
-自社のサイトにPreference center（どんな種類のメールを受け取るか選ぶ画面）を用意していたり、ログイン後のページで配信停止を選ばせたりしているケースです。この場合は少し大変で、ユーザの操作なしに配信停止を受け付けるための一意のURLやメールアドレスを用意し、`List-Unsubscribe`ヘッダに`http`や`mailto`として指定する必要があります。
+自社のサイトにPreference center（どんな種類のメールを受け取るか選ぶ画面）を用意していたり、ログイン後のページで配信停止を選ばせたりしているケースです。この場合は少し大変で、ユーザの操作なしに配信停止を受け付けるための一意のURLやメールアドレスを用意し、`List-Unsubscribe`ヘッダに`https`や`mailto`として指定する必要があります。
 
 #### 対応期限
 GmailのFAQに気になる[項目](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cif-messages-fail-dmarc-authentication-can-they-be-delivered-using-ip-allow-lists-or-spam-bypass-lists-or-will-these-messages-be-quarantined%2Cdo-all-messages-require-one-click-unsubscribe%2Cif-the-list-header-is-missing-is-the-message-body-checked-for-a-one-click-unsubscribe-link%2Cif-unsubscribe-links-are-temporarily-unavailable-due-to-maintenance-or-other-reasons-are-messages-flagged-as-spam%2Ccan-a-one-click-unsubscribe-link-to-a-landing-or-preferences-page:~:text=Do%20all%20messages%20require%20one%2Dclick%20unsubscribe%3F)があります。
@@ -455,8 +472,10 @@ GmailのFAQに気になる[項目](https://support.google.com/a/answer/14229414?
 
 二段落目を訳すと「本文内に配信停止リンクを入れている場合は2024年6月1日までにone-click unsubscribeに対応してください」となります。つまり、one-click unsubscribeの対応だけは猶予が設けられているということなんでしょうかね。実装が大変だからでしょうか。真相はよくわかりません。
 
+[24/01/10追記] 追加されたFAQ「[What is the timeline for enforcement of sender guidelines?](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cdo-the-sender-guidelines-apply-to-messages-sent-from-google-workspace-accounts%2Cwhat-is-a-bulk-sender%2Cwhat-is-the-timeline-for-enforcement-of-sender-guidelines%2Cif-messages-are-rejected-because-they-dont-meet-the-sender-guidelines-do-you-send-an-error-message-or-other-alert%2Cwhat-happens-if-senders-dont-meet-the-requirements-in-the-sender-guidelines:~:text=What%20is%20the%20timeline%20for%20enforcement%20of%20sender%20guidelines%3F)」を見ると、やはりone-click unsubscribeの対応期限は2024年6月1日のようです。また、Yahoo!も同じ期限を設けているようです（[Yahoo!のFAQの「Unsubscribe」の項目](https://senders.yahooinc.com/faqs/#:~:text=will%20not%20change.-,Unsubscribe,-Is%20one%2Dclick)を参照）。
+
 ## おわりに
-2023年12月7日時点でのGmailの新要件とその対応方法を全てまとめてみました。
+2024年01月10日時点でのGmailの新要件とその対応方法を全てまとめてみました。
 
 今回の新要件の重要な要素は「送信ドメイン認証をしっかり通すこと」「迷惑メール率を低く抑えること」「配信停止を簡単にできるようにすること」の3つです。これらは正しいメールをきちんと届けるためのベストプラクティスとして昔から言われていることであり、今回の新要件はそれを明確化したものです。いささか期限が短いですが、今回の新要件はメール配信の質を向上させるためのものなので、できるだけ早く対応する必要がありそうです。
 
@@ -477,34 +496,46 @@ GmailのFAQに気になる[項目](https://support.google.com/a/answer/14229414?
 ### 米国Yahoo!の要件は、日本のYahoo! JAPANにも適用されますか？
 Yahoo! JAPANのメールサービスは米国Yahoo!とは独立しており、今回の発表とは無関係と考えられます。もはや米国Yahoo!のグループ会社でもありませんし、「[ブランドアイコン](https://announcemail.yahoo.co.jp/brandicon_corp/)」表示など独自のスパムメール対策を行っています。ブログ等の情報発信も多いので、もし今回の規制強化に追随する場合も何らかの発表があることを期待しています。
 
+### [24/01/10追記] 要件を満たさない場合、メールはどうなりますか？
+[GmailのFAQの「What is the timeline for enforcement of sender guidelines?」](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cdo-the-sender-guidelines-apply-to-messages-sent-from-google-workspace-accounts%2Cwhat-is-a-bulk-sender%2Cwhat-is-the-timeline-for-enforcement-of-sender-guidelines:~:text=What%20is%20the%20timeline%20for%20enforcement%20of%20sender%20guidelines%3F)によると、要件の強制化は段階的に進んでいくようです。
+
+まず2月に、要件を満たしていないメールの「ごく一部（a small percentage）」が一時的なエラーを返すようになります。そのことがわかるエラーコード付きのようなので、これで送信者は要件を満たしていないメールがあることがわかります。次に4月から「一定（a percentage）」の割合で拒否を始め、その割合を段階的に引き上げます。2月の「一時的なエラー（temporary error）」は何度か再送すれば届くけど、4月の「拒否（reject）」は再送しても届かないという意味かと思います。2月以降にメールが届かなくならなかったとしても油断せず、一時的なエラーでdeferredステータスになり、再送しているメールがないかも確認する必要があります。
+
+最終的には、要件を満たさないメールは拒否されたり迷惑メールボックスに入ります。拒否された場合はそれがわかるエラーコードとメッセージが返るようなので、それを見て対応する必要があります。
 ## 参考リンク集
 最後に、筆者が参考にした資料をまとめておきます。
-### Google
-アナウンスのブログ
-https://blog.google/products/gmail/gmail-security-authentication-spam-protection/
-ガイドライン（日本語版）
-https://support.google.com/mail/answer/81126?hl=ja
-ガイドライン（英語版）
-https://support.google.com/mail/answer/81126?hl=en
-FAQ（英語版）
-https://support.google.com/a/answer/14229414?hl=en
-FAQは随時更新されるそうなので定期的に見た方が良さそうです。まだ日本語版はありません。
-ガイドラインも英語版が最新かつ正しいと思われます。
 
+### Google
+| ページ | 筆者コメント |
+| ---- | ---- |
+| [アナウンスのブログ](https://blog.google/products/gmail/gmail-security-authentication-spam-protection/) | |
+| ガイドライン（[英語](https://support.google.com/mail/answer/81126?hl=en)・[日本語](https://support.google.com/mail/answer/81126?hl=ja)） | 英語の方が最新かつ適切な表現になってます（日本語は訳が微妙なところもある）。|
+| FAQ（[英語](https://support.google.com/a/answer/14229414?hl=en) ・[日本語](https://support.google.com/a/answer/14229414?hl=ja)） | 随時更新されるそうなので定期的に見ましょう。 |
 ### Yahoo!
-アナウンス
-https://blog.postmaster.yahooinc.com/post/730172167494483968/more-secure-less-spam
-https://senders.yahooinc.com/subhub/
+| ページ | 筆者コメント |
+| ---- | ---- |
+| [アナウンス](https://blog.postmaster.yahooinc.com/post/730172167494483968/more-secure-less-spam) | |
+| [24/01/10追記] [ガイドライン](https://senders.yahooinc.com/best-practices/) | ベストプラクティスがわかりやすく簡潔にまとまっているのでYahoo!に送らない人もご一読を。 |
+| [24/01/10追記] [FAQ](https://senders.yahooinc.com/faqs/) | 「bulk sender」の定義など、Gmailと少し異なる点なども。 |
 
 ### M3AAWG
 M3AAWGはメッセージングやマルウェア等の不正利用の対策を協議する国際的な非営利組織です。Google、米Yahoo!、Microsoft、AWS、SendGridなどがメンバーです。
 ここの情報も一次資料と思って良いでしょう。
 https://www.m3aawg.org/blog/SendingBulkMailToGmail_Yahoo
 ### その他
-当事者以外の企業や個人の情報発信も多く、これらも参考になります。ただし最新の情報が反映されていない可能性があるので注意が必要です。
-https://www.proofpoint.com/jp/blog/email-and-cloud-threats/google-and-yahoo-set-new-email-authentication-requirements
-https://sendgrid.kke.co.jp/blog/?p=17031
+当事者以外の企業や個人の情報発信も多く、これらも参考になります（ただし最新の情報が反映されていない可能性があるので注意が必要です）。
+https://azumakuniyuki.hatenablog.com/entry/no-auth-no-entry-starting-from-feb-2024
+[24/01/10追記] List-Unsubscribeの実装の具体例が載っているが貴重で参考になりました。
+https://happynap.net/2023-12-01-224252/
+[24/01/10追記] 全般的にとても詳しくて参考になります（玄人向け）。
 https://www.m3tech.blog/entry/2023/10/24/110000
-https://happy-nap.hatenablog.com/entry/2023/12/01/224252
-https://maildata.jp/specification/google.html
+https://www.m3tech.blog/entry/2023/12/26/083000
+[24/01/10追記] エムスリーさんのテックブログ、特にDMARC周りの解説がわかりやすかったです。
 https://qiita.com/nfujita55a/items/37b05801209f6058808e
+https://qiita.com/nfujita55a/items/51eefd1e9578927e118a
+[24/01/10追記] 特にオプトイン、オプトアウトの歴史的？解説は面白かったです。
+
+最後にいくつかメール関連事業者の記事を。
+https://maildata.jp/specification/google.html
+https://sendgrid.kke.co.jp/blog/?p=17031
+https://www.proofpoint.com/jp/blog/email-and-cloud-threats/google-and-yahoo-set-new-email-authentication-requirements
