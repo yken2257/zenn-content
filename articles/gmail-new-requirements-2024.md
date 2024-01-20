@@ -7,7 +7,7 @@ published: true
 ---
 
 :::message
-[2024年1月10日追記] GmailとYahoo!側のアップデートに合わせていくつか細かい説明を追加しました（大筋は変わっていません）。変更点だけ知りたい方は「追記」でページ内検索してください。
+[2024年1月10日、19日追記] GmailとYahoo!側のアップデートに合わせていくつか細かい説明を追加しています（大筋は変わっていません）。変更点だけ知りたい方は「追記」でページ内検索してください。
 :::
 
 2023年10月3日、Googleはスパム対策強化のため、Gmailへ送るメールが満たすべき条件を2024年2月から厳しくすると[発表](https://blog.google/products/gmail/gmail-security-authentication-spam-protection/)しました。また米国Yahoo!も、2024年2月 ~~第一四半期~~[^100] から同様の対策を行うと[発表](https://blog.postmaster.yahooinc.com/post/730172167494483968/more-secure-less-spam)しています。端的に言えば、この条件を満たさないと宛先にメールが届かなくなるという影響の大きな変更です。
@@ -87,7 +87,7 @@ published: true
 Gmailの[FAQページ](https://support.google.com/a/answer/14229414?hl=en)には"close to 5,000 or more"と表記されているので、4,999通に抑えればOK、ということではないです。5,000という数字にこだわりすぎないほうがいいと思います。また、一回でも約5,000通/日を超えたらそれ以降は要件を満たしてね、とも取れる言い方をしています。
 > Senders who have sent close to 5000 messages in a 24-period 1 or more times are considered bulk senders.
 
-[24/01/10追記] [FAQの「Does bulk sender status expire? Can I change my sending practices to remove my bulk sender status?」](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cdoes-bulk-sender-status-expire-can-i-change-my-sending-practices-to-remove-my-bulk-sender-status:~:text=Does%20bulk%20sender%20status%20expire%3F%20Can%20I%20change%20my%20sending%20practices%20to%20remove%20my%20bulk%20sender%20status%3F)にも、一度「bulk sender」（5,000通以上の大量送信者）と認められたらずっとbulk senderとみなされる旨が明記されました。
+[24/01/10追記] [FAQの「Does bulk sender status expire? Can I change my sending practices to remove my bulk sender status?」](https://support.google.com/a/answer/14229414?hl=en#expiration)にも、一度「bulk sender」（5,000通以上の大量送信者）と認められたらずっとbulk senderとみなされる旨が明記されました。
 
 #### どの宛先に送るか
 `gmail.com`ドメイン宛に何通メール送信しているかがカウントされます。`gmail.com`ドメイン以外の宛先に送るメールはカウントされません。
@@ -96,9 +96,9 @@ Gmailの[FAQページ](https://support.google.com/a/answer/14229414?hl=en)には
 送信先の企業や団体がGoogle Workspaceを使っている場合は`gmail.com`ドメインではないので、カウントに含まれません。発表当初はGoogle Workspaceも含まれていたのですが、後に修正されたようです。
 :::
 #### どこから送るか
-ヘッダFromドメイン（受信者が目にする送信元ドメイン）の単位でカウントされるとFAQページに[記載](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cwhat-is-a-bulk-sender:~:text=with%20the%20same%20domain%20in%20the%20From%3A%20header)されています。送信元IPアドレスを分けてもヘッダFromドメインが同じなら、同じ送信者から送信したことになりそうです。
+ヘッダFromドメイン（受信者が目にする送信元ドメイン）の単位でカウントされるとFAQページに[記載](https://support.google.com/a/answer/14229414?hl=en#bulk-sender-def)されています。送信元IPアドレスを分けてもヘッダFromドメインが同じなら、同じ送信者から送信したことになりそうです。
 
-[24/01/10追記] ただし、サブドメインは合算されることに注意してください。Fromを`example.com`と`promotions.example.com`にしてそれぞれ2,500通送っている場合は合計で5,000通とみなされ、どちらのメールにもbulk sender（大量送信者）の要件が適用されます（[FAQの「What is a bulk sender?」](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cdo-the-sender-guidelines-apply-to-messages-sent-from-google-workspace-accounts%2Cwhat-is-a-bulk-sender:~:text=What%20is%20a%20bulk%20sender%3F)を参照）。
+[24/01/10追記] ただし、サブドメインは合算されることに注意してください。Fromを`example.com`と`promotions.example.com`にしてそれぞれ2,500通送っている場合は合計で5,000通とみなされ、どちらのメールにもbulk sender（大量送信者）の要件が適用されます（[FAQの「What is a bulk sender?」](https://support.google.com/a/answer/14229414?hl=en#bulk-sender-def)を参照）。
 
 あとこれは見落としがちかもしれませんが、自身のドメインを騙ったなりすましメールが送られている場合、それもカウントに含まれるはずです。なりすましメールをなくすには、DMARCを`p=quanrantine`か`p=reject`で設定する必要があるでしょう（DMARCについては後述）。
 
@@ -335,7 +335,7 @@ https://sendgrid.kke.co.jp/blog/?p=13266
 > Keep spam rates reported in Postmaster Tools below 0.10% and avoid ever reaching a spam rate of 0.30% or higher.
 
 「[迷惑メール率](https://support.google.com/mail/answer/9981691?hl=ja#zippy=%2C%E8%BF%B7%E6%83%91%E3%83%A1%E3%83%BC%E3%83%AB%E7%8E%87
-)」とは、受信トレイに配信されたメールのうち、受信者が手動で迷惑メールに分類した件数の割合です。Gmailアカウントに5,000通送っているなら、迷惑メール報告数は5未満に抑えないといけません。0.1%と0.3%にどういう区別があるのかわかりにくいですが、定常的に0.1%を超えないよう運用して、突発的に高くなっても0.3%以上にならないようにしてね、という感じでしょうか。[FAQ](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cwhat-happens-when-sender-spam-rate-exceeds-the-maximum-spam-rate-allowed-by-the-guidelines:~:text=Currently%2C%20spam%20rates%20greater%20than%200.1%25%20have%20a%20negative%20impact%20on%20email%20inbox%20delivery.)によれば、0.1%を超えていると現状でも受信トレイに届きにくいようです。
+)」とは、受信トレイに配信されたメールのうち、受信者が手動で迷惑メールに分類した件数の割合です。Gmailアカウントに5,000通送っているなら、迷惑メール報告数は5未満に抑えないといけません。0.1%と0.3%にどういう区別があるのかわかりにくいですが、定常的に0.1%を超えないよう運用して、突発的に高くなっても0.3%以上にならないようにしてね、という感じでしょうか。[FAQ](https://support.google.com/a/answer/14229414?hl=en#spam-exceeds)によれば、0.1%を超えていると現状でも受信トレイに届きにくいようです。
 
 現状どれだけ迷惑メール報告があるか知るには[Postmaster Tools](https://support.google.com/mail/answer/9981691)を設定する必要があります。ここで、Googleアカウントに送信したメールの迷惑メール率を確認できます。
 
@@ -397,8 +397,12 @@ Gmailのガイドラインの[日本語訳](https://support.google.com/mail/answ
 これ、本文内にリンクを入れるだけではなく、メールヘッダにもきちんと配信停止の仕組みを取り入れなさいよと言っています。それが一つ目の「one-click unsubscribe」です。メールヘッダにしかるべき情報を入れておくことで、ワンクリックで配信停止できるボタンをメールボックスプロバイダ側が用意してくれます。
 
 :::message
-メール本文に配信停止リンクを入れさえすればOKなのか、メールヘッダにも配信停止の仕組みを入れる必要があるのか、は解釈が分かれるかもしれません。そういう質問があったのか、FAQにはヘッダのことだと[明記](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cif-messages-fail-dmarc-authentication-can-they-be-delivered-using-ip-allow-lists-or-spam-bypass-lists-or-will-these-messages-be-quarantined%2Cdo-all-messages-require-one-click-unsubscribe%2Cif-the-list-header-is-missing-is-the-message-body-checked-for-a-one-click-unsubscribe-link%2Cif-unsubscribe-links-are-temporarily-unavailable-due-to-maintenance-or-other-reasons-are-messages-flagged-as-spam%2Ccan-a-one-click-unsubscribe-link-to-a-landing-or-preferences-page:~:text=No.%20One%2Dclick%20unsubscribe%20should%20be%20implemented%20according%20to%20RFC%208058)されています。またGmailの新要件アナウンスのブログにも登場している、Yahoo!のMarcel Becker (Sr. Director Product Management) が出た[ウェビナー](https://www.validity.com/resource-center/state-of-email-live-gmail-yahoos-new-sender-requirements/)を見たところ、この要件はヘッダに対するものであると再三述べていました。
+メール本文に配信停止リンクを入れさえすればOKなのか、メールヘッダにも配信停止の仕組みを入れる必要があるのか、は解釈が分かれるかもしれません。そういう質問があったのか、FAQにはヘッダのことだと[明記](https://support.google.com/a/answer/14229414?hl=en#unsub-msg-body)されています。またGmailの新要件アナウンスのブログにも登場している、Yahoo!のMarcel Becker (Sr. Director Product Management) が出た[ウェビナー](https://www.validity.com/resource-center/state-of-email-live-gmail-yahoos-new-sender-requirements/)を見たところ、この要件はヘッダに対するものであると再三述べていました。
 > When we talk about "one-click unsubscribe" requirements, this is for the HEADERS, in the list-unsubscribe header. It's not about a link you have in the body.
+:::
+
+:::message
+[24/01/19追記] 追加された[FAQ](https://support.google.com/a/answer/14229414?hl=en#no-one-click)によると、「one-click unsubscribe」が未対応の場合でも、Gmailがそのメールを拒否したり迷惑メール判定したりはしないようです。「one-click unsubscribeがないと受信者にスパム報告されやすくなるから、きちんと対応してね」ぐらいのスタンスなのかもしれません。
 :::
 
 #### 表示の例
@@ -420,7 +424,7 @@ Gmailのガイドラインの[日本語訳](https://support.google.com/mail/answ
 [24/01/10追記] Gmailの表示は見た目や挙動が変わったので、詳細は[こちらのスクラップ](https://zenn.dev/ken_yoshi/scraps/edafcb7ed1978d)を参照してください。
 :::
 
-[^8]: とはいえどうやって聞けば良いんだと思ってましたが、FAQに[問い合わせ先が記載](https://support.google.com/a/answer/14229414?hl=en#:~:text=Support%20%26%20escalation)されていました。
+[^8]: とはいえどうやって聞けば良いんだと思ってましたが、FAQに[問い合わせ先が記載](https://support.google.com/a/answer/14229414?hl=en#mitigation)されていました。
 
 #### 仕様の解説
 「one-click unsubscribe」は[RFC 8058](https://datatracker.ietf.org/doc/html/rfc8058)で定義されている用語で、HTTPSのPOSTリクエストで配信停止を行うものです。なのでRFC 8058に準拠するのが理想だとは思いますが、Yahoo!の要件ではMAILTOによる配信停止（[RFC 2369](https://datatracker.ietf.org/doc/html/rfc2369)）でもOKだと言っています[^9]。実際Gmailのワンクリック配信停止リンクも、HTTPSでなくても表示されるようです[^12]。
@@ -437,7 +441,7 @@ Gmailのガイドラインの[日本語訳](https://support.google.com/mail/answ
 メールクライアントが表示する配信停止のリンクをクリックすると、`https://example.jp/unsubscribe`に対してPOSTリクエストが送られます。ここでは例として単純なURLを書いていますが、実際には宛先ごとに異なるURLを用意し、どの宛先がクリックしたか判別できるようにしておきます。POSTリクエストを受け取ったら、その宛先には配信を行わないようにします。
 
 :::message alert
-メール本文に配置した配信停止リンクの飛び先として、Preference center（どんな種類のメールを受け取るか選ぶ画面）や、サービスのログイン画面を指定している場合もあると思います。しかし、単にそのURLを`List-Unsubscribe`に指定するのはだめです。これらのページは遷移後に受信者の操作を必要としますが、それは「one-click」ではありません。あくまでメールクライアント内のボタンを「one-click」するだけで配信停止できるようにする必要があります。RFC 8058はそのことを規定した仕様です。GmailのFAQにも[記載あり](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cif-messages-fail-dmarc-authentication-can-they-be-delivered-using-ip-allow-lists-or-spam-bypass-lists-or-will-these-messages-be-quarantined%2Cdo-all-messages-require-one-click-unsubscribe%2Cif-the-list-header-is-missing-is-the-message-body-checked-for-a-one-click-unsubscribe-link%2Cif-unsubscribe-links-are-temporarily-unavailable-due-to-maintenance-or-other-reasons-are-messages-flagged-as-spam%2Ccan-a-one-click-unsubscribe-link-to-a-landing-or-preferences-page:~:text=Can%20a%20one%2Dclick%20unsubscribe%20link%20to%20a%20landing%20or%20preferences%20page%3F)。
+メール本文に配置した配信停止リンクの飛び先として、Preference center（どんな種類のメールを受け取るか選ぶ画面）や、サービスのログイン画面を指定している場合もあると思います。しかし、単にそのURLを`List-Unsubscribe`に指定するのはだめです。これらのページは遷移後に受信者の操作を必要としますが、それは「one-click」ではありません。あくまでメールクライアント内のボタンを「one-click」するだけで配信停止できるようにする必要があります。RFC 8058はそのことを規定した仕様です。GmailのFAQにも[記載あり](https://support.google.com/a/answer/14229414?hl=en#landing-page)。
 :::
 
 ##### `MAILTO`による方法（RFC 2369）
@@ -464,18 +468,18 @@ https://help.salesforce.com/s/articleView?id=000386352&type=1
 自社のサイトにPreference center（どんな種類のメールを受け取るか選ぶ画面）を用意していたり、ログイン後のページで配信停止を選ばせたりしているケースです。この場合は少し大変で、ユーザの操作なしに配信停止を受け付けるための一意のURLやメールアドレスを用意し、`List-Unsubscribe`ヘッダに`https`や`mailto`として指定する必要があります。
 
 #### 対応期限
-GmailのFAQに気になる[項目](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cif-messages-fail-dmarc-authentication-can-they-be-delivered-using-ip-allow-lists-or-spam-bypass-lists-or-will-these-messages-be-quarantined%2Cdo-all-messages-require-one-click-unsubscribe%2Cif-the-list-header-is-missing-is-the-message-body-checked-for-a-one-click-unsubscribe-link%2Cif-unsubscribe-links-are-temporarily-unavailable-due-to-maintenance-or-other-reasons-are-messages-flagged-as-spam%2Ccan-a-one-click-unsubscribe-link-to-a-landing-or-preferences-page:~:text=Do%20all%20messages%20require%20one%2Dclick%20unsubscribe%3F)があります。
+GmailのFAQに気になる[項目](https://support.google.com/a/answer/14229414?hl=en#one-click-all-msgs)があります。
 
-> No. One-click unsubscribe is required only for commercial, promotional messages. Transactional messages are excluded from this requirement. Some examples of transactional messages are password reset messages, reservation confirmations, and form submission confirmations.
+> No. One-click unsubscribe is required only for marketing and promotional messages. Transactional messages are excluded from this requirement. Some examples of transactional messages are password reset messages, reservation confirmations, and form submission confirmations.
 > 
-> Senders that already include an unsubscribe link in their messages have until June 1st 2024 to implement one-click unsubscribe in all commercial messages.
+> Senders that already include an unsubscribe link in their messages have until June 1, 2024 to implement one-click unsubscribe in all commercial, promotional messages.
 
 二段落目を訳すと「本文内に配信停止リンクを入れている場合は2024年6月1日までにone-click unsubscribeに対応してください」となります。つまり、one-click unsubscribeの対応だけは猶予が設けられているということなんでしょうかね。実装が大変だからでしょうか。真相はよくわかりません。
 
-[24/01/10追記] 追加されたFAQ「[What is the timeline for enforcement of sender guidelines?](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cdo-the-sender-guidelines-apply-to-messages-sent-from-google-workspace-accounts%2Cwhat-is-a-bulk-sender%2Cwhat-is-the-timeline-for-enforcement-of-sender-guidelines%2Cif-messages-are-rejected-because-they-dont-meet-the-sender-guidelines-do-you-send-an-error-message-or-other-alert%2Cwhat-happens-if-senders-dont-meet-the-requirements-in-the-sender-guidelines:~:text=What%20is%20the%20timeline%20for%20enforcement%20of%20sender%20guidelines%3F)」を見ると、やはりone-click unsubscribeの対応期限は2024年6月1日のようです。また、Yahoo!も同じ期限を設けているようです（[Yahoo!のFAQの「Unsubscribe」の項目](https://senders.yahooinc.com/faqs/#:~:text=will%20not%20change.-,Unsubscribe,-Is%20one%2Dclick)を参照）。
+[24/01/10追記] 追加されたFAQ「[What is the timeline for enforcement of sender guidelines?](https://support.google.com/a/answer/14229414?hl=en#timeline)」を見ると、やはりone-click unsubscribeの対応期限は2024年6月1日のようです。また、Yahoo!も同じ期限を設けているようです（[Yahoo!のFAQの「Unsubscribe」の項目](https://senders.yahooinc.com/faqs/#:~:text=will%20not%20change.-,Unsubscribe,-Is%20one%2Dclick)を参照）。
 
 ## おわりに
-2024年01月10日時点でのGmailの新要件とその対応方法を全てまとめてみました。
+2024年01月19日時点でのGmailの新要件とその対応方法を全てまとめてみました。
 
 今回の新要件の重要な要素は「送信ドメイン認証をしっかり通すこと」「迷惑メール率を低く抑えること」「配信停止を簡単にできるようにすること」の3つです。これらは正しいメールをきちんと届けるためのベストプラクティスとして昔から言われていることであり、今回の新要件はそれを明確化したものです。いささか期限が短いですが、今回の新要件はメール配信の質を向上させるためのものなので、できるだけ早く対応する必要がありそうです。
 
@@ -491,13 +495,14 @@ GmailのFAQに気になる[項目](https://support.google.com/a/answer/14229414?
 迷う場合は5,000通以上送信していると思って厳しい方の条件を満たしましょう。いずれ、すべての送信者がこれらの条件を満たすことが求められるようになるんじゃないでしょうか。
 
 ### 全てのメールに配信停止リンクを入れる必要がありますか？
-いいえ。マーケティングメールが対象です。パスワードリセットや購入確認等のいわゆる「トランザクションメール」は対象外です。GmailのFAQに[記載](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cif-messages-fail-dmarc-authentication-can-they-be-delivered-using-ip-allow-lists-or-spam-bypass-lists-or-will-these-messages-be-quarantined%2Cdo-all-messages-require-one-click-unsubscribe%2Cif-the-list-header-is-missing-is-the-message-body-checked-for-a-one-click-unsubscribe-link%2Cif-unsubscribe-links-are-temporarily-unavailable-due-to-maintenance-or-other-reasons-are-messages-flagged-as-spam%2Ccan-a-one-click-unsubscribe-link-to-a-landing-or-preferences-page%2Cwhat-is-a-bulk-sender:~:text=Do%20all%20messages%20require%20one%2Dclick%20unsubscribe%3F)があります。
+いいえ。マーケティングメールが対象です。パスワードリセットや購入確認等のいわゆる「トランザクションメール」は対象外です。GmailのFAQに[記載](https://support.google.com/a/answer/14229414?hl=en#one-click-all-msgs)があります。
+[24/01/19追記] Gmailがマーケティングメールとトランザクションメールをどう見分けているか詳細は不明ですが、[FAQ](https://support.google.com/a/answer/14229414?hl=en#promotional)には「Googleではなく受信者が決めるものだ」という（少し煮え切らない）文言があります。受信者の誰かがプロモーションタブに振り分けて初めてマーケティングメールとして認識し始める、という感じなんでしょうか。
 
 ### 米国Yahoo!の要件は、日本のYahoo! JAPANにも適用されますか？
 Yahoo! JAPANのメールサービスは米国Yahoo!とは独立しており、今回の発表とは無関係と考えられます。もはや米国Yahoo!のグループ会社でもありませんし、「[ブランドアイコン](https://announcemail.yahoo.co.jp/brandicon_corp/)」表示など独自のスパムメール対策を行っています。ブログ等の情報発信も多いので、もし今回の規制強化に追随する場合も何らかの発表があることを期待しています。
 
 ### [24/01/10追記] 要件を満たさない場合、メールはどうなりますか？
-[GmailのFAQの「What is the timeline for enforcement of sender guidelines?」](https://support.google.com/a/answer/14229414?hl=en#zippy=%2Cdo-the-sender-guidelines-apply-to-messages-sent-from-google-workspace-accounts%2Cwhat-is-a-bulk-sender%2Cwhat-is-the-timeline-for-enforcement-of-sender-guidelines:~:text=What%20is%20the%20timeline%20for%20enforcement%20of%20sender%20guidelines%3F)によると、要件の強制化は段階的に進んでいくようです。
+[GmailのFAQの「What is the timeline for enforcement of sender guidelines?」](https://support.google.com/a/answer/14229414?hl=en#timeline)によると、要件の強制化は段階的に進んでいくようです。
 
 まず2月に、要件を満たしていないメールの「ごく一部（a small percentage）」が一時的なエラーを返すようになります。そのことがわかるエラーコード付きのようなので、これで送信者は要件を満たしていないメールがあることがわかります。次に4月から「一定（a percentage）」の割合で拒否を始め、その割合を段階的に引き上げます。2月の「一時的なエラー（temporary error）」は何度か再送すれば届くけど、4月の「拒否（reject）」は再送しても届かないという意味かと思います。2月以降にメールが届かなくならなかったとしても油断せず、一時的なエラーでdeferredステータスになり、再送しているメールがないかも確認する必要があります。
 
