@@ -1,17 +1,13 @@
 {
-  "name": "Existing Dockerfile",
-  "build": {
-    "dockerfile": "../Dockerfile"
-  },
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "GitHub.copilot"
-      ]
-    }
-  },
-	"features": {
-		"ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/sshd:1": {}
+	"name": "node:20-bullseye-slim",
+  "image": "node:20-bullseye-slim",
+	"postCreateCommand": "apt update && apt install -y git" ,
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"GitHub.copilot"
+			]
+		}
 	}
 }
