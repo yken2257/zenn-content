@@ -36,7 +36,7 @@ IAM Identity Centerのメニューからアプリケーションを選択して�
 ②IdP Metadataという欄に先ほどIAM Identity Centerで表示されていたURLを入力します。
 「SAML Issuer ID」と「Embed URL」の二つがありますが、どちらも入力するのは
 ```
-https://portal.sso.REGION.amazonaws.com/saml/assertion/RAMDON-STRING
+https://portal.sso.REGION.amazonaws.com/saml/assertion/RANDOM_STRING
 ```
 の形式のURLです（パスの途中に"assertion"が入っているもの）。
 
@@ -51,7 +51,7 @@ https://portal.sso.REGION.amazonaws.com/saml/assertion/RAMDON-STRING
 
 ④設定を保存して一旦SendGrid側の操作は完了です。
 
-## IAM Identity Centerの設定(続き)
+## IAM Identity Centerの設定（続き）
 
 またIAM Identity Centerに戻り、先ほどのSendGrid MetadataのURLを設定画面下部の「アプリケーションメタデータ」の欄に入力します。2箇所ありますがどちらも同じです。
 
